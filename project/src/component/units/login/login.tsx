@@ -2,15 +2,47 @@ import { useForm } from 'react-hook-form';
 import * as S from './login.styles'
 import { schema } from './LoginPage.validation';
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useMutation } from '@apollo/client';
+import { IMutation, IMutationLoginUserArgs } from '../../../commons/types/generated/types';
+import { LOGIN_USER } from './login.query';
+import { Modal } from 'antd';
+import { useRecoilState } from 'recoil';
+import { accessTokenState } from '../../../commons/stores';
 
 export default function Login() {
+    const [accessToken, setAccessToken] = useRecoilState(accessTokenState);
+
     const { register, handleSubmit, formState } = useForm({
         resolver: yupResolver(schema),
       });
 
-      const onClickSubmit = (data) => {
-        console.log(data)
-      }
+      const [loginUser] = useMutation<
+      Pick<IMutation, "loginUser">,
+      IMutationLoginUserArgs
+    >(LOGIN_USER);
+
+    const onClickSubmit = async (data: any) => {
+        try {
+          const result = await loginUser({
+            variables: {
+              email: data.email,
+              password: data.password,
+            },
+          });
+          console.log(result)
+          const accessToken = result.data?.loginUser.accessToken;
+    
+          if (accessToken === undefined) {
+            Modal.error({ content: "로그인을 먼저 해주세요." });
+          }
+          setAccessToken(accessToken);
+          localStorage.setItem("accessToken", accessToken);
+    
+        //   router.push("/boards");
+        } catch (error) {
+          if (error instanceof Error) Modal.error({ content: error });
+        }
+      };
     return(
         <S.Wrapper onSubmit={handleSubmit(onClickSubmit)}>
             <S.TitleWrap>
