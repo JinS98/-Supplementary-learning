@@ -11,6 +11,7 @@ export default function Nav() {
                 <Bar>|</Bar>
                 <Menu>#STYLE</Menu>
                 <Menu>EVENT</Menu>
+                <Menu>BEST</Menu>
             </MenuWrap>
         </Wrapper>
     )
@@ -28,7 +29,7 @@ const MenuWrap = styled.div`
 display: flex;
 font-size: 22px;
 font-weight: 700;
-width: 65%;
+width: 75%;
 justify-content: space-between;
 align-items: center;
 `

@@ -1,5 +1,5 @@
 import { useMutation } from "@apollo/client";
-import { ChangeEvent, useEffect, useRef } from "react";
+import { ChangeEvent, useRef } from "react";
 import { checkValidationImage } from "./Uploads01.validation";
 import Uploads01UI from "./Uploads01.presenter";
 import { IUploads01Props } from "./Uploads01.types";
