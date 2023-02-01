@@ -1,10 +1,11 @@
+import MarketDetail from "../../../src/component/units/market/detail/detail";
 
 
-export default function MarketDetail() {
+export default function MarketDetailPage() {
 
 
     return(
-        <>
-        </>
+        <MarketDetail/>
+       
     )
 }

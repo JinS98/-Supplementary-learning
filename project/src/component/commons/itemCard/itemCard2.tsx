@@ -1,11 +1,20 @@
 import { HeartOutlined } from "@ant-design/icons"
 import styled from "@emotion/styled"
+import { useRouter } from "next/router"
 import { price } from "../../../commons/library/comma"
+import * as M from "../../../commons/styles/mediaQueries";
+
 
 export default function ItemCard2(props) {
+    const router = useRouter()
+
+    const onClickDetail = (usedItem) => () => {
+        router.push(`market/${usedItem}`);
+    }
     return(
         <Wrapper>
             <ImgBox
+                onClick={onClickDetail(props.el._id)} 
                 style={{
                     backgroundImage:
                       props.el.images[0] === undefined || props.el.images[0] === ""
@@ -32,10 +41,14 @@ width: 22%;
 height: 450px;
 display: flex;
 flex-direction: column;
-margin-right: 53.4px;
+margin-right: 4%;
 margin-bottom: 40px;
 &:nth-of-type(4n) {
     margin-right: 0;
+  }
+
+${M.mediaL} {
+    height: 550px;
   }
 `
 const ImgBox = styled.div`
@@ -48,6 +61,12 @@ padding-top: 25px;
 padding-right: 25px;
 background-size: cover;
 background-position: center;
+cursor: pointer;
+
+${M.mediaL} {
+    height: 420px;
+    margin-bottom: 5px;
+  }
 `
 const Pick = styled(HeartOutlined)`
 font-size: 20px;

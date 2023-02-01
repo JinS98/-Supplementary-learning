@@ -1,11 +1,19 @@
 import { HeartOutlined } from "@ant-design/icons"
 import styled from "@emotion/styled"
+import { useRouter } from "next/router"
 import { price } from "../../../commons/library/comma"
 
 export default function ItemCard(props) {
+    const router = useRouter()
+
+    const onClickDetail = (usedItem) => () => {
+        router.push(`market/${usedItem}`);
+    }
+
     return(
         <Wrapper>
             <ImgBox
+                onClick={onClickDetail(props.el._id)} 
                 style={{
                     backgroundImage:
                       props.el.images[0] === undefined || props.el.images[0] === ""

@@ -45,7 +45,7 @@ const onLoadMore = () => {
             <S.BestWrap>
                 <S.Title>BEST</S.Title>
                 <S.ItemWrap>
-                    {best.fetchUseditemsOfTheBest.map((el) =>(
+                    {best?.fetchUseditemsOfTheBest.map((el) =>(
                         <ItemCard key={el.id} el={el}/>
                     ))
                     }
@@ -65,7 +65,7 @@ const onLoadMore = () => {
             <S.ScrollWrap>
             <InfiniteScroll pageStart={0} loadMore={onLoadMore} hasMore={true}>
             <S.Main>
-            {data.fetchUseditems.map((el) =>(
+            {data?.fetchUseditems.map((el) =>(
                         <ItemCard2 key={el.id} el={el}/>
                     ))
                     }
