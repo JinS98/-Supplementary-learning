@@ -3,7 +3,7 @@ import * as S from './detail.styles'
 
 export default function MarketDetail() {
     return(
-        <S.Wrapper>
+        <S.Main>
             <S.Main_Left>
                 <S.ImgBox></S.ImgBox>
             </S.Main_Left>
@@ -38,6 +38,6 @@ export default function MarketDetail() {
                     <S.BasketsBtn>SHOPPING BAG</S.BasketsBtn>
                 </S.BtnWrap>
             </S.Main_Right>
-        </S.Wrapper>
+        </S.Main>
     )
 }
