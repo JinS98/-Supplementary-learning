@@ -1,15 +1,59 @@
+import { gql, useQuery } from "@apollo/client";
 import styled from "@emotion/styled"
+import { useEffect, useState } from "react";
+import { IQuery } from "../../../../commons/types/generated/types";
+
+export const FETCH_USER_LOGGED_IN = gql`
+  query fetchUserLoggedIn {
+    fetchUserLoggedIn {
+      _id
+      email
+      name
+      userPoint {
+        _id
+        amount
+        user {
+          _id
+        }
+      }
+    }
+  }
+`;
+export const LOGOUT_USER = gql`
+  mutation createLogoutUser{
+    createLogoutUser{
+      _id
+    }
+  }
+`
 
 export default function Header() {
+    const { data } = useQuery<Pick<IQuery, "fetchUserLoggedIn">>(FETCH_USER_LOGGED_IN);
+    const [user,setUser] = useState(false)
+    useEffect(() => {
+        if(data) {
+            setUser(true)
+        }
+    },[data])
     return(
         <Wrapper>
             <Logo src="/Logo.png" />
             <MenuWrap>
-                <Menu>
+                {user
+                ? <UserInfo>
+                    <UserName>
+                        ㅇㅇㅇ님의 포인트
+                    </UserName>
+                    <Point>1400</Point>
+                    <P>P</P>
+                    <FillPoint>충전</FillPoint>
+                  </UserInfo>
+                :<Menu>
                     로그인
                 </Menu>
+                }   
                 <Menu>
-                    회원가입
+                    {user ?  "로그아웃" : "회원가입" }
                 </Menu>
                 <Menu>
                     장바구니
@@ -35,9 +79,10 @@ const Logo = styled.img`
 `
 const MenuWrap = styled.div`
     display:flex;
-    width: 250px;
+    width:  250px;
     justify-content: space-between;
     align-items: center;
+    border: 1px solid red;
     `
 const Menu = styled.div`
 font-size: 14px;
@@ -59,3 +104,11 @@ background-color: #F65656;
 color: white;
  ;
 `
+const UserInfo = styled.div`
+display: flex;
+border: 1px solid red;
+`
+const UserName = styled.div``
+const Point = styled.div``
+const P = styled.div``
+const FillPoint = styled.div``

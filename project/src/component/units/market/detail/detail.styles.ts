@@ -95,20 +95,22 @@ color: #F65656;
 `
 export const BtnWrap = styled.div`
 margin-top: 31px;
-width: 765px;
+width: 100%;
 margin: auto;
 display: flex;
 justify-content: space-between;
 `
 export const BuyBtn = styled.button`
-width: 309px;
+width: 42%;
 height: 100px;
 color: #ffffff;
 background-color: #000000;
+cursor: pointer;
 `
 export const BasketsBtn = styled.button`
-width: 436px;
+width: 52%;
 height: 100px;
 background-color: #555555;
 color: #ffffff;
+cursor: pointer;
 `
