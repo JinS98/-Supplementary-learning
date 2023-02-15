@@ -1,5 +1,6 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import styled from "@emotion/styled"
+import Router, { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { IQuery } from "../../../../commons/types/generated/types";
 
@@ -20,39 +21,62 @@ export const FETCH_USER_LOGGED_IN = gql`
   }
 `;
 export const LOGOUT_USER = gql`
-  mutation createLogoutUser{
-    createLogoutUser{
-      _id
-    }
+  mutation logoutUser{
+    logoutUser
   }
 `
 
 export default function Header() {
+    const router = useRouter()
     const { data } = useQuery<Pick<IQuery, "fetchUserLoggedIn">>(FETCH_USER_LOGGED_IN);
+    const [logoutUser] = useMutation(LOGOUT_USER)
+
     const [user,setUser] = useState(false)
     useEffect(() => {
         if(data) {
             setUser(true)
         }
     },[data])
+
+    const onClickLogin = () => {
+        router.push('/login')
+    }
+
+    const onClickJoin = () => {
+        router.push('/join')
+      }
+
+    const onClickLogout = async() => {
+        const result = await logoutUser({})
+        // window.localStorage.removeItem("accessToken");
+        location.reload();
+        console.log(result)
+      }
     return(
         <Wrapper>
             <Logo src="/Logo.png" />
-            <MenuWrap>
+            <MenuWrap
+            style={{
+                width: user ? '400px' : ""
+            }}
+            >
                 {user
                 ? <UserInfo>
                     <UserName>
-                        ㅇㅇㅇ님의 포인트
+                        한승진
                     </UserName>
+                    <UserPoint>
+                        님 포인트
+                    </UserPoint>
                     <Point>1400</Point>
                     <P>P</P>
                     <FillPoint>충전</FillPoint>
                   </UserInfo>
-                :<Menu>
+                :<Menu onClick={onClickLogin}>
                     로그인
                 </Menu>
                 }   
-                <Menu>
+                <Menu onClick={user ?onClickLogout :onClickJoin}>
                     {user ?  "로그아웃" : "회원가입" }
                 </Menu>
                 <Menu>
@@ -82,7 +106,6 @@ const MenuWrap = styled.div`
     width:  250px;
     justify-content: space-between;
     align-items: center;
-    border: 1px solid red;
     `
 const Menu = styled.div`
 font-size: 14px;
@@ -106,9 +129,22 @@ color: white;
 `
 const UserInfo = styled.div`
 display: flex;
-border: 1px solid red;
+font-size: 14px;
+font-weight: 400;
+line-height: 14px;
 `
-const UserName = styled.div``
-const Point = styled.div``
-const P = styled.div``
-const FillPoint = styled.div``
+const UserName = styled.div`
+font-weight: 700;
+`
+const UserPoint = styled.div`
+margin-right: 5px;
+`
+const Point = styled.div`
+text-decoration: underline;
+`
+const P = styled.div`
+margin: 0px 5px;
+`
+const FillPoint = styled.div`
+margin-left: 10px;
+`

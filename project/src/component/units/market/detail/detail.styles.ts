@@ -114,3 +114,81 @@ background-color: #555555;
 color: #ffffff;
 cursor: pointer;
 `
+export const DetailWrap = styled.div`
+margin-top: 100px;
+width: 100%;
+padding: 0px 56px;
+display: flex;
+flex-direction: column;
+`
+export const DetailTitle = styled.div`
+padding-left: 50px;
+font-family: Noto Sans KR;
+font-size: 32px;
+font-weight: 700;
+line-height: 32px;
+letter-spacing: -0.05em;
+text-align: left;
+padding-bottom: 16px;
+border-bottom: 3px solid #555555;
+`
+export const DetailContent = styled.div``
+export const Content = styled.div`
+padding: 105px 55px;
+font-family: Noto Sans KR;
+font-size: 24px;
+font-weight: 300;
+line-height: 24px;
+letter-spacing: -0.05em;
+text-align: left;
+`
+export const deliveryInfo = styled.div`
+padding: 0px 155px;
+padding-bottom: 86px;
+`
+export const deliveryInfoTitle = styled.div`
+font-family: Noto Sans KR;
+font-size: 32px;
+font-weight: 700;
+line-height: 32px;
+letter-spacing: -0.05em;
+text-align: left;
+padding-bottom: 19px;
+`
+export const deliveryInfoSubTitle = styled.div`
+font-family: Noto Sans KR;
+font-size: 24px;
+font-weight: 300;
+line-height: 24px;
+letter-spacing: -0.05em;
+text-align: left;
+color: #000000;
+
+`
+export const Map = styled.div`
+margin-top: 10px;
+width:100%;
+aspect-ratio: 2; 
+/* height: 791px; */
+`
+export const deliveryInfoDetail = styled.ul`
+margin-top: 33px;
+position: relative;
+right:25px;
+`
+export const InfoDetail = styled.li`
+font-family: Noto Sans KR;
+font-size: 24px;
+font-weight: 300;
+line-height: 24px;
+letter-spacing: -0.05em;
+text-align: left;
+`
+export const InfoDetail_focus = styled.li`
+font-family: Noto Sans KR;
+font-size: 24px;
+font-weight: 500;
+line-height: 24px;
+letter-spacing: -0.05em;
+text-align: left;
+`
