@@ -11,6 +11,25 @@ width: 49%;
 background-color: #A0A0A0;
 height: 611px;
 `
+export const BrandLine = styled.div`
+display: flex;
+justify-content: space-between;
+`
+export const IconWrap = styled.div`
+display: flex;
+justify-content: space-between;
+width: 50px;
+`
+export const EditIcon = styled.img`
+width: 14px;
+height: 14px;
+cursor: pointer;
+`
+export const DeleteIcon = styled.img`
+width: 14px;
+height: 14px;
+cursor: pointer;
+`
 export const ImgBox = styled.div``
 export const Main_Right = styled.div`
 width: 48%;
@@ -78,6 +97,7 @@ border-bottom:1px solid  #C0C0C0;
 `
 export const Remark = styled.div`
 padding: 20px 0px;
+height: 150px;
 font-size: 20px;
 font-weight: 400;
 line-height: 20px;
@@ -86,6 +106,7 @@ text-align: left;
 margin-bottom: 24px;
 `
 export const Tags = styled.div`
+display: flex;
 font-size: 16px;
 font-weight: 500;
 line-height: 23px;
@@ -191,4 +212,17 @@ font-weight: 500;
 line-height: 24px;
 letter-spacing: -0.05em;
 text-align: left;
+`
+export const TagItem = styled.div`
+height: 30.51px;
+text-align: center;
+margin-right: 5px;
+border-radius: 20px;
+`
+export const Text = styled.div`
+font-size: 16px;
+font-weight: 400;
+line-height: 30px;
+letter-spacing: -0.05em;
+text-align: center;
 `

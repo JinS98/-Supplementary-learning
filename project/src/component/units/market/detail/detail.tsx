@@ -1,9 +1,15 @@
 import { HeartOutlined } from '@ant-design/icons'
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
-import { IQuery, IQueryFetchUseditemArgs } from '../../../../commons/types/generated/types';
-import { FETCH_USED_ITEM } from './detail.query';
+import { useEffect, useState } from 'react';
+import { useRecoilState } from 'recoil';
+import { price } from '../../../../commons/library/comma';
+import { basketsState } from '../../../../commons/stores';
+import { IMutation, IMutationDeleteUseditemArgs, IMutationToggleUseditemPickArgs, IQuery, IQueryFetchUseditemArgs } from '../../../../commons/types/generated/types';
+import { FETCH_USER_LOGGED_IN } from '../../../commons/layout/header';
+import MarketCommentList from '../../comment/market/BoardCommentList/BoardCommentList.container';
+import MarketComment from '../../comment/market/BoardCommentWrite/MarketCommentWrite.container';
+import { DELETE_USED_ITEM, FETCH_USED_ITEM, TOGGLE_USED_ITEM_PICK } from './detail.query';
 import * as S from './detail.styles'
 
 declare const window: typeof globalThis & {
@@ -11,7 +17,13 @@ declare const window: typeof globalThis & {
   };
 
 export default function MarketDetail() {
+  const [BasketsState, setBasketsState] = useRecoilState(basketsState);
+    const tags = []
     const router = useRouter()
+    const [loginUser, setLoginUser] = useState(false)
+
+    const { data:loggedInUser } = useQuery<Pick<IQuery, "fetchUserLoggedIn">>(FETCH_USER_LOGGED_IN);
+
 
     const { data } = useQuery<
     Pick<IQuery, "fetchUseditem">,
@@ -21,8 +33,77 @@ export default function MarketDetail() {
       useditemId: String(router.query.useditemId),
     },
   });
+  const [toggleUseditemPick] = useMutation<
+  Pick<IMutation, "toggleUseditemPick">,
+  IMutationToggleUseditemPickArgs
+>(TOGGLE_USED_ITEM_PICK);
+
+const [deleteUseditem] = useMutation<
+Pick<IMutation, "deleteBoard">,
+IMutationDeleteUseditemArgs
+>(DELETE_USED_ITEM);
+
+const onClickEdit = () => {
+  router.push(`/market/${router.query.useditemId}/edit`);
+};
+
+  const onClickDelete = () => {
+    try{
+      void deleteUseditem({
+        variables: {
+          useditemId: String(data?.fetchUseditem._id),
+        },
+        
+      });
+
+    }catch (error) {
+      if (error instanceof Error) alert(error.message);
+    }
+    
+    router.push("/market");
+  }
+
+  const onClickBasket = (usedItem) => () => {
+    console.log(usedItem)
+    const baskets = JSON.parse(localStorage.getItem("baskets")) || []
+    let isExists = false
+ 
+    baskets.forEach(basketEl => {
+      if(usedItem === basketEl) isExists = true
+    });
+    if(isExists) {
+      baskets.forEach((el, index) => {
+        if(usedItem === el){
+          alert("이미 장바구니에 담으셨습니다!")
+          baskets?.splice(index,1)
+          setBasketsState(baskets.length)
+      console.log(JSON.parse(localStorage.getItem("baskets")))
+        }
+      })
+      
+    }else{
+      baskets.push(usedItem)
+      localStorage.setItem("baskets", JSON.stringify(baskets))
+      alert("장바구니에 담았습니다!")
+      
+
+    }
+ 
+  }
 
     useEffect(() => {
+    
+        data?.fetchUseditem.tags.forEach((el) =>{
+          if(el[0] === '#') {
+            el.slice(1)
+            tags.push(el.slice(1))
+          }
+        })
+        console.log(tags)
+        if(loggedInUser?.fetchUserLoggedIn._id === data?.fetchUseditem.seller._id){
+          setLoginUser(true)
+        }
+
         const script = document.createElement("script"); // <script></script> 랑 동일
         script.src =
         "//dapi.kakao.com/v2/maps/sdk.js?appkey=60d701217f2e5767f7f2323406c17e5a&libraries=services&autoload=false";
@@ -66,17 +147,36 @@ export default function MarketDetail() {
         <>
         <S.Main>
             <S.Main_Left>
-                <S.ImgBox></S.ImgBox>
+                <S.ImgBox
+                 style={{
+                  backgroundImage:
+                  `url(https://storage.googleapis.com/${data?.fetchUseditem.images?.[0]})` }}
+                ></S.ImgBox>
             </S.Main_Left>
             <S.Main_Right>
                 <S.TItle>
+                  <S.BrandLine>
                     <S.Brand>AVANDRESS</S.Brand>
-                    <S.Name>[SET] HERO TRACK WIDE SET-UP PURPLE</S.Name>
+                    {loginUser?
+                             <S.IconWrap>
+                             <S.EditIcon
+                             onClick={onClickEdit}
+                             src='/Vector-12.png'
+                             />
+                             <S.DeleteIcon
+                             onClick={onClickDelete}
+                              src='/Vector-13.png'
+                             />
+                           </S.IconWrap>
+                    : <></>}
+            
+                  </S.BrandLine>
+                    <S.Name>[SET] {data?.fetchUseditem.name}</S.Name>
                 </S.TItle>
                 <S.Price_Pick>
                     <S.PriceWrap>
                         <S.Price_ko>판매가</S.Price_ko>
-                        <S.Price_num>15,3900</S.Price_num>
+                        <S.Price_num>{price(data?.fetchUseditem.price)}</S.Price_num>
                         <S.Price_ko>원</S.Price_ko>
                     </S.PriceWrap>
                     <S.PickWrap>
@@ -87,28 +187,31 @@ export default function MarketDetail() {
                 </S.Price_Pick>
                 <S.ContentWrap>
                     <S.Remark>
-                    폴리에스테르 100% 원사로 스퀘어미터 450 밀도있게 편직하여 중량감과 두께를 트레이닝복에 
-최적화시켰으며 덤블텐타가공으로 축율 및 뒤틀림을 최소화 하였습니다. 수분을 빠르게 흡수하고 
-건조되도록 하였고 내마모성이 좋습니다. 기계세탁이 가능하며 세탁 후 빠르게 건조되어 관리가 용이합니다.
- 편직 가공에서 유연제 처리로 부드러운 터치감으로 편안합니다.
+                    {data?.fetchUseditem.remarks}
                     </S.Remark>
-                    <S.Tags>#태그 #태그 #태그</S.Tags>
+                    <S.Tags>
+                    {tags &&
+                  tags.map((tagItem, index) => {
+                    return (
+                      <S.TagItem key={index}>
+                        <S.Text>#{tagItem}</S.Text>
+                      </S.TagItem>
+                    );
+                  })}
+                    </S.Tags>
                 </S.ContentWrap>
                 <S.BtnWrap>
                     <S.BuyBtn>BUY NOW</S.BuyBtn>
-                    <S.BasketsBtn>SHOPPING BAG</S.BasketsBtn>
+                    <S.BasketsBtn onClick={onClickBasket(data?.fetchUseditem._id)}>SHOPPING BAG</S.BasketsBtn>
                 </S.BtnWrap>
             </S.Main_Right>
         </S.Main>
         <S.DetailWrap>
             <S.DetailTitle>Detail</S.DetailTitle>
             <S.DetailContent>
-                <S.Content>
-                    contentcontentcontentcontentcontentvcontentcontentcontentcontentcontentcontent
-                    contentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontent
-                    contentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontent
-                    contentcontentcontentcontentcontentcontentcontentcontentcontent
-                    contentcontentcontentcontentcontentcontentcontent
+                <S.Content dangerouslySetInnerHTML={{
+                    __html: (data?.fetchUseditem.contents),
+                  }}>
                 </S.Content>
                 <S.deliveryInfo>
                     <S.deliveryInfoTitle>
@@ -145,6 +248,8 @@ export default function MarketDetail() {
                     </S.deliveryInfoDetail>
                 </S.deliveryInfo>
                 <S.DetailTitle>Q & A</S.DetailTitle>
+                <MarketComment />
+                <MarketCommentList />
             </S.DetailContent>
         </S.DetailWrap>
         </>

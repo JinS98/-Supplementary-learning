@@ -1,5 +1,6 @@
 import { SearchOutlined } from '@ant-design/icons';
 import { useQuery } from '@apollo/client';
+import { useRouter } from 'next/router';
 import InfiniteScroll from 'react-infinite-scroller';
 import { IQuery, IQueryFetchUseditemsArgs } from '../../../../commons/types/generated/types';
 import ItemCard from '../../../commons/itemCard'
@@ -8,6 +9,7 @@ import { FETCH_USED_ITEMS, FETCH_USED_ITEMS_BEST } from './list.query';
 import * as S from './list.styles'
 
 export default function MarketList() {
+  const router = useRouter()
     const { data: best} = useQuery
   (FETCH_USED_ITEMS_BEST);
 
@@ -15,6 +17,10 @@ export default function MarketList() {
   Pick<IQuery, "fetchUseditems">,
   IQueryFetchUseditemsArgs
 >(FETCH_USED_ITEMS);
+
+const onClickWrite = () => {
+  router.push(`/market/new`)
+}
 
 
 const onLoadMore = () => {
@@ -52,7 +58,9 @@ const onLoadMore = () => {
                 </S.ItemWrap>
             </S.BestWrap>
             <S.BtnWrap>
-                <S.WriteBtn>
+                <S.WriteBtn
+                onClick={onClickWrite}
+                >
                 상품 등록
                 </S.WriteBtn>
                 <S.SearchBox>

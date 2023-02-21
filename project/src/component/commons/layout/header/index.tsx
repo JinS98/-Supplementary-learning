@@ -2,6 +2,8 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import styled from "@emotion/styled"
 import Router, { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { useRecoilState } from "recoil";
+import { basketsState } from "../../../../commons/stores";
 import { IQuery } from "../../../../commons/types/generated/types";
 
 export const FETCH_USER_LOGGED_IN = gql`
@@ -27,6 +29,8 @@ export const LOGOUT_USER = gql`
 `
 
 export default function Header() {
+  const [BasketsState, setBasketsState] = useRecoilState(basketsState);
+  const [basketsCount, setBasketsCount] = useState(0)
     const router = useRouter()
     const { data } = useQuery<Pick<IQuery, "fetchUserLoggedIn">>(FETCH_USER_LOGGED_IN);
     const [logoutUser] = useMutation(LOGOUT_USER)
@@ -52,6 +56,15 @@ export default function Header() {
         location.reload();
         console.log(result)
       }
+
+      useEffect(() =>{
+        if(!(JSON.parse(localStorage.getItem("baskets")))){
+          setBasketsCount(0)
+        }else{
+          setBasketsCount(JSON.parse(localStorage.getItem("baskets")).length)
+        }
+      
+      },[BasketsState])
     return(
         <Wrapper>
             <Logo src="/Logo.png" />
@@ -63,12 +76,12 @@ export default function Header() {
                 {user
                 ? <UserInfo>
                     <UserName>
-                        한승진
+                        {data?.fetchUserLoggedIn.name}
                     </UserName>
                     <UserPoint>
                         님 포인트
                     </UserPoint>
-                    <Point>1400</Point>
+                    <Point>{data?.fetchUserLoggedIn.userPoint?.amount}</Point>
                     <P>P</P>
                     <FillPoint>충전</FillPoint>
                   </UserInfo>
@@ -81,7 +94,7 @@ export default function Header() {
                 </Menu>
                 <Menu>
                     장바구니
-                    <Num>0</Num>
+                    <Num>{basketsCount}</Num>
                 </Menu>
             </MenuWrap>
         </Wrapper>

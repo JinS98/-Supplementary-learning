@@ -12,13 +12,15 @@ import { isEditState } from '../../../../commons/stores';
 import { useMutation } from '@apollo/client';
 import { IMutation, IMutationCreateUseditemArgs, IMutationUpdateUseditemArgs } from '../../../../commons/types/generated/types';
 import { CREATE_USED_ITEM, UPDATE_USED_ITEM } from './new.query';
+import { useRouter } from 'next/router';
 
 
 declare const window: typeof globalThis & {
     kakao: any;
   };
 
-export default function MarketNew() {
+export default function MarketNew(props) {
+    const router = useRouter()
     const [isOpen, setIsOpen] = useState(false);
     const [isEdit, setIsEdit] = useRecoilState(isEditState);
     const [fileUrls, setFileUrls] = useState(["", ""]);
@@ -46,17 +48,17 @@ export default function MarketNew() {
       const { register, handleSubmit, formState, setValue, trigger } =
       useForm({
         resolver: yupResolver(schema),
-        // defaultValues: {
-        //   name: props.data?.fetchUseditem.name ?? "",
-        //   price: props.data?.fetchUseditem.price ?? "",
-        //   remarks: props.data?.fetchUseditem.remarks ?? "",
-        //   tags: props.data?.fetchUseditem.tags,
-        //   contents: props.data?.fetchUseditem.contents ?? "",
-        //   address: props.data?.fetchUseditem.useditemAddress?.address ?? "",
-        //   addressDetail:
-        //     props.data?.fetchUseditem.useditemAddress?.addressDetail ?? "",
-        //     zipcode: props.data?.fetchUseditem.useditemAddress?.zipcode ?? ""
-        // },
+        defaultValues: {
+          name: props.data?.fetchUseditem.name ?? "",
+          price: props.data?.fetchUseditem.price ?? "",
+          remarks: props.data?.fetchUseditem.remarks ?? "",
+          tags: props.data?.fetchUseditem.tags,
+          contents: props.data?.fetchUseditem.contents ?? "",
+          address: props.data?.fetchUseditem.useditemAddress?.address ?? "",
+          addressDetail:
+            props.data?.fetchUseditem.useditemAddress?.addressDetail ?? "",
+            zipcode: props.data?.fetchUseditem.useditemAddress?.zipcode ?? ""
+        },
       });
 
       const checkKeyDown = (e) => {
@@ -123,7 +125,7 @@ export default function MarketNew() {
                 },
               },
             });
-            // router.push(`/market/${result.data?.createUseditem._id}`);
+            router.push(`/market/${result.data?.createUseditem._id}`);
             console.log(result);
           } catch (error) {
             if (error instanceof Error) Modal.error({ content: error });
@@ -195,8 +197,62 @@ export default function MarketNew() {
     };
   }, [address]);
 
+  const EditBtn = async (data: any) => {
+    if (
+      !data.name &&
+      !data.price &&
+      !data.contents &&
+      !address &&
+      !data.addressDetail &&
+      !data.remarks
+    ) {
+      alert("수정한 내용이 없습니다.");
+      return;
+    }
+
+    const updateUseditemInput: IUpdateUseditemInput = {};
+    if (data.name) updateUseditemInput.title = data.name;
+    if (data.price) updateUseditemInput.title = data.price;
+    if (data.contents) updateUseditemInput.contents = data.contents;
+    if (data.remarks) updateUseditemInput.youtubeUrl = data.remarks;
+    if (address || data.addressDetail) {
+      updateUseditemInput.boardAddress = {};
+      if (address) updateUseditemInput.boardAddress.address = address;
+      if (data.addressDetail)
+        updateUseditemInput.boardAddress.addressDetail = data.addressDetail;
+    }
+
+    try {
+      if (typeof router.query.useditemId !== "string") return;
+      const result = await updateUseditem({
+        variables: {
+          updateUseditemInput: {
+            name: data.name,
+            price: data.price,
+            contents: data.contents,
+            remarks: data.remarks,
+            images: [...fileUrls],
+            tags: tagList,
+            useditemAddress: {
+              zipcode: zipcode,
+              address: address,
+              addressDetail: data.addressDetail,
+              lat: data.lat,
+              lng: data.lng,
+            },
+          },
+          useditemId: router.query.useditemId,
+        },
+      });
+      alert("수정성공");
+      router.push(`/market/${result.data?.updateUseditem._id}`);
+    } catch (error) {
+      if (error instanceof Error) alert(error.message);
+    }
+  };
+
     return(
-        <S.Wrapper onSubmit={handleSubmit(onClickSubmit)}>
+        <S.Wrapper onSubmit={handleSubmit(isEdit ? EditBtn : onClickSubmit)}>
             <S.TitleWrap>
             <S.Title>
                 {isEdit ? "상품 수정" : "상품 등록"}
@@ -297,7 +353,7 @@ export default function MarketNew() {
                 취소
             </S.CancelBtn>
             <S.EnrollBtn>
-                등록
+            {isEdit ? "수정" : "등록"}
             </S.EnrollBtn>
         </S.BtnWrap>
         </S.Wrapper>
