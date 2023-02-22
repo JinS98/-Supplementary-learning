@@ -10,6 +10,7 @@ import { withAuth } from '../../../commons/hocs/withAuth';
 import { FETCH_USER_LOGGED_IN } from '../../../commons/layout/header';
 import MarketCommentList from '../../comment/market/BoardCommentList/BoardCommentList.container';
 import MarketComment from '../../comment/market/BoardCommentWrite/MarketCommentWrite.container';
+import { FETCH_USED_ITEMS } from '../list/list.query';
 import { CREATE_POINT_TRANSACTION_OF_BUYING_AND_SELLING, DELETE_USED_ITEM, FETCH_USED_ITEM, FETCH_USED_ITEMS_I_PICKED, TOGGLE_USED_ITEM_PICK } from './detail.query';
 import * as S from './detail.styles'
 
@@ -94,7 +95,11 @@ const onClickPay = async () => {
       void deleteUseditem({
         variables: {
           useditemId: String(data?.fetchUseditem._id),
-        },
+        },refetchQueries: [
+          {
+            query: FETCH_USED_ITEMS
+          },
+        ],
         
       });
 
@@ -182,9 +187,12 @@ const onClickPay = async () => {
         <S.Main>
             <S.Main_Left>
                 <S.ImgBox
-                 style={{
-                  backgroundImage:
-                  `url(https://storage.googleapis.com/${data?.fetchUseditem.images?.[0]})` }}
+                  style={{
+                    backgroundImage:
+                      data?.fetchUseditem.images[0] === undefined || data?.fetchUseditem.images[0] === ""
+                        ? "url(/de.png)"
+                        : `url(https://storage.googleapis.com/${data?.fetchUseditem.images[0]})`,
+                  }}
                 ></S.ImgBox>
             </S.Main_Left>
             <S.Main_Right>
