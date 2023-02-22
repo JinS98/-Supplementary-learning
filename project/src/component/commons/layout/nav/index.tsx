@@ -1,10 +1,15 @@
 import styled from "@emotion/styled"
+import { useRouter } from "next/router"
 
 export default function Nav() {
+    const router = useRouter()
+    const onClickBrand = () => {
+        router.push(`/market`)
+    }
     return(
         <Wrapper>
             <MenuWrap>
-                <Menu>BRAND</Menu>
+                <Menu onClick={onClickBrand}>BRAND</Menu>
                 <Menu>CATEGORY</Menu>
                 <Menu>LIFE</Menu>
                 <Menu>BEAUTY </Menu>

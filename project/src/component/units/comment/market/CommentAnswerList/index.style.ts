@@ -90,3 +90,24 @@ export const AddAnswer = styled.button`
   background-color: black;
   border: none;
 `;
+export const IconWrapper = styled.div`
+  width: 20%;
+  margin-left: 30px;
+  display: flex;
+  justify-content: flex-end;
+`;
+export const IconEdit = styled.img`
+  width: 18px;
+  height: 18px;
+  :hover {
+    cursor: pointer;
+  }
+`;
+export const IconDelete = styled.img`
+  width: 14px;
+  height: 14px;
+  margin-left: 25px;
+  :hover {
+    cursor: pointer;
+  }
+`;

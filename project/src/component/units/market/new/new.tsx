@@ -13,13 +13,14 @@ import { useMutation } from '@apollo/client';
 import { IMutation, IMutationCreateUseditemArgs, IMutationUpdateUseditemArgs } from '../../../../commons/types/generated/types';
 import { CREATE_USED_ITEM, UPDATE_USED_ITEM } from './new.query';
 import { useRouter } from 'next/router';
+import { withAuth } from '../../../commons/hocs/withAuth';
 
 
 declare const window: typeof globalThis & {
     kakao: any;
   };
 
-export default function MarketNew(props) {
+function MarketNew(props) {
     const router = useRouter()
     const [isOpen, setIsOpen] = useState(false);
     const [isEdit, setIsEdit] = useRecoilState(isEditState);
@@ -34,6 +35,7 @@ export default function MarketNew(props) {
     IMutationCreateUseditemArgs
   >(CREATE_USED_ITEM);
 
+
   const [updateUseditem] = useMutation<
     Pick<IMutation, "updateUseditem">,
     IMutationUpdateUseditemArgs
@@ -45,7 +47,7 @@ export default function MarketNew(props) {
         setFileUrls(newFileUrls);
       };
 
-      const { register, handleSubmit, formState, setValue, trigger } =
+      const { register, handleSubmit, formState, setValue, trigger, getValues } =
       useForm({
         resolver: yupResolver(schema),
         defaultValues: {
@@ -132,8 +134,16 @@ export default function MarketNew(props) {
           }
       }
 
+      useEffect(() => {
+        if (props.data?.fetchBoard?.images?.length) {
+          setFileUrls([...props.data?.fetchBoard.images]);
+        }
+      }, [props.data]);
+
 
   useEffect(() => {
+
+    
     const script = document.createElement("script"); // <script></script> 랑 동일
     script.src =
       "//dapi.kakao.com/v2/maps/sdk.js?appkey=60d701217f2e5767f7f2323406c17e5a&libraries=services&autoload=false";
@@ -151,12 +161,12 @@ export default function MarketNew(props) {
         const map = new window.kakao.maps.Map(container, options);
 
         const geocoder = new window.kakao.maps.services.Geocoder()
-        // if (props.data !== undefined) {
-        //   if (address === "") {
-        //     setTagList(props.data.fetchUseditem.tags);
-        //     setAddress(props.data.fetchUseditem.useditemAddress.address);
-        //   }
-        // }
+        if (props.data !== undefined) {
+          if (address === "") {
+            setTagList(props.data.fetchUseditem.tags);
+            setAddress(props.data.fetchUseditem.useditemAddress.address);
+          }
+        }
 
         // 주소로 좌표를 검색합니다
         geocoder.addressSearch(
@@ -269,7 +279,9 @@ export default function MarketNew(props) {
             <S.ContentWrap>
                 <S.Content>상품 내용</S.Content>
                 <S.CusReactQuill
-                placeholder="상품을 설명해주세요." onChange={onChangeContents}
+                placeholder="상품을 설명해주세요."
+                defaultValue={getValues("contents")}
+                onChange={onChangeContents}
           />
             </S.ContentWrap>
             <S.ItemWrap>
@@ -359,3 +371,5 @@ export default function MarketNew(props) {
         </S.Wrapper>
     )
 }
+
+export default withAuth(MarketNew)

@@ -1,30 +1,37 @@
-import { HeartOutlined } from '@ant-design/icons'
+import { HeartFilled, HeartOutlined } from '@ant-design/icons'
 import { useMutation, useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { price } from '../../../../commons/library/comma';
 import { basketsState } from '../../../../commons/stores';
-import { IMutation, IMutationDeleteUseditemArgs, IMutationToggleUseditemPickArgs, IQuery, IQueryFetchUseditemArgs } from '../../../../commons/types/generated/types';
+import { IMutation, IMutationCreatePointTransactionOfBuyingAndSellingArgs, IMutationDeleteUseditemArgs, IMutationToggleUseditemPickArgs, IQuery, IQueryFetchUseditemArgs, IQueryFetchUseditemsIPickedArgs } from '../../../../commons/types/generated/types';
+import { withAuth } from '../../../commons/hocs/withAuth';
 import { FETCH_USER_LOGGED_IN } from '../../../commons/layout/header';
 import MarketCommentList from '../../comment/market/BoardCommentList/BoardCommentList.container';
 import MarketComment from '../../comment/market/BoardCommentWrite/MarketCommentWrite.container';
-import { DELETE_USED_ITEM, FETCH_USED_ITEM, TOGGLE_USED_ITEM_PICK } from './detail.query';
+import { CREATE_POINT_TRANSACTION_OF_BUYING_AND_SELLING, DELETE_USED_ITEM, FETCH_USED_ITEM, FETCH_USED_ITEMS_I_PICKED, TOGGLE_USED_ITEM_PICK } from './detail.query';
 import * as S from './detail.styles'
 
 declare const window: typeof globalThis & {
     kakao: any;
   };
 
-export default function MarketDetail() {
+ function MarketDetail() {
   const [BasketsState, setBasketsState] = useRecoilState(basketsState);
-    const tags = []
     const router = useRouter()
+    const [isPick, setIsPick] = useState(false)
     const [loginUser, setLoginUser] = useState(false)
 
     const { data:loggedInUser } = useQuery<Pick<IQuery, "fetchUserLoggedIn">>(FETCH_USER_LOGGED_IN);
 
+    const { data:Picked} = useQuery<
+    Pick<IQuery, "fetchUseditemsIPicked">,
+    IQueryFetchUseditemsIPickedArgs
+  >(FETCH_USED_ITEMS_I_PICKED);
 
+  console.log(Picked)
+  
     const { data } = useQuery<
     Pick<IQuery, "fetchUseditem">,
     IQueryFetchUseditemArgs
@@ -33,6 +40,7 @@ export default function MarketDetail() {
       useditemId: String(router.query.useditemId),
     },
   });
+  console.log(data?.fetchUseditem.pickedCount)
   const [toggleUseditemPick] = useMutation<
   Pick<IMutation, "toggleUseditemPick">,
   IMutationToggleUseditemPickArgs
@@ -43,8 +51,42 @@ Pick<IMutation, "deleteBoard">,
 IMutationDeleteUseditemArgs
 >(DELETE_USED_ITEM);
 
+const [createPointTransactionOfBuyingAndSelling] = useMutation<
+Pick<IMutation, "createPointTransactionOfBuyingAndSelling">,
+IMutationCreatePointTransactionOfBuyingAndSellingArgs
+>(CREATE_POINT_TRANSACTION_OF_BUYING_AND_SELLING);
+
 const onClickEdit = () => {
   router.push(`/market/${router.query.useditemId}/edit`);
+};
+
+const onClickPick = async () => {
+  setIsPick(prev => !prev)
+  await toggleUseditemPick({
+    variables: {
+      useditemId: String(router.query.useditemId),
+    },
+    refetchQueries: [
+      {
+        query: FETCH_USED_ITEM,
+        variables: { useditemId: router.query.useditemId },
+      },
+    ],
+  });
+};
+
+const onClickPay = async () => {
+  await createPointTransactionOfBuyingAndSelling({
+    variables: {
+      useritemId: String(data?.fetchUseditem._id),
+    },refetchQueries: [
+      {
+        query: FETCH_USER_LOGGED_IN
+      },
+    ],
+  });
+  alert("구매가 완료되었습니다.");
+  router.push("/market");
 };
 
   const onClickDelete = () => {
@@ -64,7 +106,6 @@ const onClickEdit = () => {
   }
 
   const onClickBasket = (usedItem) => () => {
-    console.log(usedItem)
     const baskets = JSON.parse(localStorage.getItem("baskets")) || []
     let isExists = false
  
@@ -92,14 +133,7 @@ const onClickEdit = () => {
   }
 
     useEffect(() => {
-    
-        data?.fetchUseditem.tags.forEach((el) =>{
-          if(el[0] === '#') {
-            el.slice(1)
-            tags.push(el.slice(1))
-          }
-        })
-        console.log(tags)
+
         if(loggedInUser?.fetchUserLoggedIn._id === data?.fetchUseditem.seller._id){
           setLoginUser(true)
         }
@@ -181,7 +215,12 @@ const onClickEdit = () => {
                     </S.PriceWrap>
                     <S.PickWrap>
                     <S.Pick>MY</S.Pick>
-                    <HeartOutlined style={{marginLeft:"10px", marginRight:"10px"}}/>
+                    {!isPick 
+                    ?
+                    <HeartOutlined onClick={onClickPick} style={{marginLeft:"10px", marginRight:"10px"}}/>
+                    : 
+                    <HeartFilled onClick={onClickPick} style={{marginLeft:"10px", marginRight:"10px", color:"red"}}/>
+                    }
                     <S.Pick>Product</S.Pick>
                     </S.PickWrap>
                 </S.Price_Pick>
@@ -190,8 +229,7 @@ const onClickEdit = () => {
                     {data?.fetchUseditem.remarks}
                     </S.Remark>
                     <S.Tags>
-                    {tags &&
-                  tags.map((tagItem, index) => {
+                    {data && data.fetchUseditem.tags.map((tagItem, index) => {
                     return (
                       <S.TagItem key={index}>
                         <S.Text>#{tagItem}</S.Text>
@@ -201,7 +239,7 @@ const onClickEdit = () => {
                     </S.Tags>
                 </S.ContentWrap>
                 <S.BtnWrap>
-                    <S.BuyBtn>BUY NOW</S.BuyBtn>
+                    <S.BuyBtn onClick={onClickPay} >BUY NOW</S.BuyBtn>
                     <S.BasketsBtn onClick={onClickBasket(data?.fetchUseditem._id)}>SHOPPING BAG</S.BasketsBtn>
                 </S.BtnWrap>
             </S.Main_Right>
@@ -256,3 +294,4 @@ const onClickEdit = () => {
     )
 }
 
+export default withAuth(MarketDetail)

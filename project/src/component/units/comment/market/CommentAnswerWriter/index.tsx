@@ -87,6 +87,8 @@ export default function CommentAnswerWriter(props) {
     }
   };
 
+  
+
   return isActive ? (
     <S.Back>
       <S.Wrapper>
@@ -100,8 +102,8 @@ export default function CommentAnswerWriter(props) {
             <S.Cancel onClick={onClickCancel}>
               취소하기
             </S.Cancel>
-            <S.Submit onClick={onClickWrite}>
-              작성하기
+            <S.Submit onClick={props.isEdit ? onClickUpdate : onClickWrite}>
+            {props.isEdit ? "수정하기" : "작성하기"}
             </S.Submit>
           </S.BtnWrap>
         </S.contentsWrap>

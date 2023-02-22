@@ -4,12 +4,15 @@ import { useRouter } from "next/router"
 export default function Nav2() {
     const router = useRouter()
     const isHidden = router.asPath.includes("login")
+    const onClickBrand = () => {
+        router.push(`/market`)
+    }
     
     return(
         <Wrapper>
             <Logo src="/white-logo.png" />
             <MenuWrap>
-                <Menu>BRAND</Menu>
+                <Menu onClick={onClickBrand} >BRAND</Menu>
                 <Menu>CATEGORY</Menu>
                 <Menu>LIFE</Menu>
                 <Menu>BEAUTY </Menu>

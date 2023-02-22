@@ -1,12 +1,32 @@
 import { HeartOutlined } from "@ant-design/icons"
+import { useMutation } from "@apollo/client";
 import styled from "@emotion/styled"
 import { useRouter } from "next/router"
+import { useState } from "react";
 import { price } from "../../../commons/library/comma"
 import * as M from "../../../commons/styles/mediaQueries";
+import { IMutation, IMutationToggleUseditemPickArgs } from "../../../commons/types/generated/types";
+import { TOGGLE_USED_ITEM_PICK } from "../../units/market/detail/detail.query";
 
 
 export default function ItemCard2(props) {
     const router = useRouter()
+    const [isPick, setIsPick] = useState(false)
+    const [toggleUseditemPick] = useMutation<
+  Pick<IMutation, "toggleUseditemPick">,
+  IMutationToggleUseditemPickArgs
+  >(TOGGLE_USED_ITEM_PICK);
+
+  const onClickPick = (itemId)=> async(e) => {
+    e.stopPropagation();
+    console.log(itemId)
+    setIsPick(prev => !prev)
+    await toggleUseditemPick({
+      variables: {
+        useditemId: String(itemId),
+      }
+    });
+  };
 
     const onClickDetail = (usedItem) => () => {
         router.push(`market/${usedItem}`);
@@ -14,23 +34,25 @@ export default function ItemCard2(props) {
     return(
         <Wrapper>
             <ImgBox
-                onClick={onClickDetail(props.el._id)} 
+                onClick={onClickDetail(props.el?._id)} 
                 style={{
                     backgroundImage:
-                      props.el.images[0] === undefined || props.el.images[0] === ""
+                      props.el?.images[0] === undefined || props.el?.images[0] === ""
                         ? ""
-                        : `url(https://storage.googleapis.com/${props.el.images[0]})`,
+                        : `url(https://storage.googleapis.com/${props.el?.images[0]})`,
                   }}
             >
-            <Pick />
+                {isPick 
+                ? <Picked onClick={onClickPick(props.el._id)} />
+                : <Pick onClick={onClickPick(props.el._id)} />}
             </ImgBox>
             <ContentWrap>
                 <PriceWrap>
                     <Sale>7%</Sale>
-                    <Price>{price(props.el.price)}</Price>
+                    <Price>{price(props.el?.price)}</Price>
                 </PriceWrap>
-                <Name>{props.el.name}</Name>
-                <Remark>[당일출고/주문폭주] 노티드 캔버스 패브</Remark>
+                <Name>{props.el?.name}</Name>
+                <Remark>{props.el.remarks}</Remark>
             </ContentWrap>
         </Wrapper>
     )
@@ -43,6 +65,8 @@ display: flex;
 flex-direction: column;
 margin-right: 4%;
 margin-bottom: 40px;
+cursor: pointer;
+
 &:nth-of-type(4n) {
     margin-right: 0;
   }
@@ -61,7 +85,6 @@ padding-top: 25px;
 padding-right: 25px;
 background-size: cover;
 background-position: center;
-cursor: pointer;
 
 ${M.mediaL} {
     height: 420px;
@@ -71,6 +94,12 @@ ${M.mediaL} {
 const Pick = styled(HeartOutlined)`
 font-size: 20px;
 color:#555555;
+z-index: 10;
+`
+const Picked = styled(HeartOutlined)`
+font-size: 20px;
+color: red;
+z-index: 10;
 `
 const ContentWrap = styled.div`
 display: flex;

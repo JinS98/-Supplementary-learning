@@ -1,10 +1,30 @@
 import { HeartOutlined } from "@ant-design/icons"
+import { useMutation } from "@apollo/client"
 import styled from "@emotion/styled"
 import { useRouter } from "next/router"
+import { useState } from "react"
 import { price } from "../../../commons/library/comma"
+import { IMutation, IMutationToggleUseditemPickArgs } from "../../../commons/types/generated/types"
+import { TOGGLE_USED_ITEM_PICK } from "../../units/market/detail/detail.query"
 
 export default function ItemCard(props) {
     const router = useRouter()
+    const [isPick, setIsPick] = useState(false)
+    const [toggleUseditemPick] = useMutation<
+  Pick<IMutation, "toggleUseditemPick">,
+  IMutationToggleUseditemPickArgs
+  >(TOGGLE_USED_ITEM_PICK);
+
+  const onClickPick = (itemId)=> async(e) => {
+    e.stopPropagation();
+    console.log(itemId)
+    setIsPick(prev => !prev)
+    await toggleUseditemPick({
+      variables: {
+        useditemId: String(itemId),
+      }
+    });
+  };
 
     const onClickDetail = (usedItem) => () => {
         router.push(`market/${usedItem}`);
@@ -21,7 +41,9 @@ export default function ItemCard(props) {
                         : `url(https://storage.googleapis.com/${props.el.images[0]})`,
                   }}
             >
-            <Pick />
+            {isPick 
+                ? <Picked onClick={onClickPick(props.el._id)} />
+                : <Pick onClick={onClickPick(props.el._id)} />}
             </ImgBox>
             <ContentWrap>
                 <PriceWrap>
@@ -29,7 +51,7 @@ export default function ItemCard(props) {
                     <Price>{price(props.el.price)}</Price>
                 </PriceWrap>
                 <Name>{props.el.name}</Name>
-                <Remark>[당일출고/주문폭주] 노티드 캔버스 패브</Remark>
+                <Remark>{props.el.remarks}</Remark>
             </ContentWrap>
         </Wrapper>
     )
@@ -40,6 +62,7 @@ width: 22%;
 height: 450px;
 display: flex;
 flex-direction: column;
+cursor: pointer;
 `
 const ImgBox = styled.div`
 width: 100%;
@@ -55,6 +78,11 @@ background-position: center;
 const Pick = styled(HeartOutlined)`
 font-size: 20px;
 color:#555555;
+`
+const Picked = styled(HeartOutlined)`
+font-size: 20px;
+color: red;
+z-index: 10;
 `
 const ContentWrap = styled.div`
 display: flex;

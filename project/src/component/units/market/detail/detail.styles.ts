@@ -8,7 +8,6 @@ padding: 68px 56px;
 `
 export const Main_Left = styled.div`
 width: 49%;
-background-color: #A0A0A0;
 height: 611px;
 `
 export const BrandLine = styled.div`
@@ -30,7 +29,11 @@ width: 14px;
 height: 14px;
 cursor: pointer;
 `
-export const ImgBox = styled.div``
+export const ImgBox = styled.div`
+height:100%;
+background-size: cover;
+background-position: center;
+`
 export const Main_Right = styled.div`
 width: 48%;
 padding-top: 20px;

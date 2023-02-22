@@ -47,3 +47,19 @@ export const DELETE_USED_ITEM = gql`
     deleteUseditem(useditemId: $useditemId)
   }
 `;
+
+export const FETCH_USED_ITEMS_I_PICKED = gql`
+  query fetchUseditemsIPicked($page: Int, $search: String) {
+    fetchUseditemsIPicked(page: $page, search: $search) {
+      _id
+      name
+      remarks
+      price
+      tags
+      soldAt
+      images
+      createdAt
+      pickedCount
+    }
+  }
+`;

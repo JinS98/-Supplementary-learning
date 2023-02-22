@@ -6,9 +6,11 @@ import { IUploads01Props } from "./Uploads01.types";
 import { UPLOAD_FILE } from "./Uploads01.queries";
 import { Modal } from "antd";
 
-export default function Uploads02(props: IUploads01Props) {
+export default function Uploads01(props: IUploads01Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploadFile] = useMutation(UPLOAD_FILE);
+
+console.log(props.fileUrl)
 
   const onClickUpload = () => {
     fileRef.current?.click();

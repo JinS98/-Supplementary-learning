@@ -8,8 +8,10 @@ import { LOGIN_USER } from './login.query';
 import { Modal } from 'antd';
 import { useRecoilState } from 'recoil';
 import { accessTokenState } from '../../../commons/stores';
+import { useRouter } from 'next/router';
 
 export default function Login() {
+  const router = useRouter()
     const [accessToken, setAccessToken] = useRecoilState(accessTokenState);
 
     const { register, handleSubmit, formState } = useForm({
@@ -29,7 +31,7 @@ export default function Login() {
               password: data.password,
             },
           });
-          console.log(result)
+          router.push(`/market`)
           const accessToken = result.data?.loginUser.accessToken;
     
           if (accessToken === undefined) {
